@@ -1,5 +1,6 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityUtil;
@@ -43,11 +44,13 @@ public class UserController {
     @Autowired
     private HostHolder hostHolder;
 
+    @LoginRequired
     @RequestMapping(path="/setting",method = RequestMethod.GET)
     public String getSettingPage(){
         return "/site/setting";
     }
 
+    @LoginRequired
     @RequestMapping(path="/upload",method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model){
         if(headerImage == null){
@@ -105,5 +108,34 @@ public class UserController {
             logger.error("读取头像失败："+e.getMessage());
         }
 
+    }
+
+    @RequestMapping(path = "/changePassword",method = RequestMethod.POST)
+    public String changePassword(String oldPassword, String newPassword, Model model){
+        //验证非空
+        if(oldPassword==null){
+            model.addAttribute("oldPasswordMsg","原密码不能为空");
+            return "/site/setting";
+        }
+        if(newPassword==null){
+            model.addAttribute("newPasswordMsg","新密码不能为空");
+            return "/site/setting";
+        }
+
+        //验证原密码是否正确
+        User user = hostHolder.getUser();
+        String salt=user.getSalt();
+        oldPassword=CommunityUtil.md5(oldPassword+salt);
+        if(!oldPassword.equals(user.getPassword())){
+            model.addAttribute("oldPasswordMsg","原密码错误");
+            return "/site/setting";
+        }
+
+        //更改密码
+        newPassword=CommunityUtil.md5(newPassword+salt);
+        userService.updatePassword(user.getId(),newPassword);
+
+        //强制登出
+        return "redirect:/logout";
     }
 }
