@@ -22,4 +22,10 @@ public interface MessageMapper {
 
     //查询所有会话的未读消息的总和(conversationId作为动态条件，如果条件为空就是查询所有会话的，否则就是查询某一个会话的)
     int selectLetterUnreadCount(int userId, String conversationId);
+
+    //新增消息
+    int insertMessage(Message message);
+
+    //修改一系列消息的状态
+    int updateStatus(List<Integer> ids,int status);
 }
