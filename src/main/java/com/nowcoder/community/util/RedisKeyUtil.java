@@ -5,6 +5,8 @@ public class RedisKeyUtil {
     private static final String SPLIT = ":";
     private static final String PREFIX_ENTITY_LIKE = "like:entity";
     private static final String PREFIX_USER_LIKE = "like:user";
+    private static final String PREFIX_FOLLOWEE = "followee";
+    private static final String PREFIX_FOLLOWER = "follower";
 
     //对某个实体的赞生成key格式如下
     // like:entity:entityType:entityId -> set(userId)
@@ -16,5 +18,18 @@ public class RedisKeyUtil {
     // like:user:userId -> int
     public static String getUserLikeKey(int userId){
         return PREFIX_USER_LIKE+SPLIT+userId;
+    }
+
+    //某个用户对某个实体类型的关注列表，格式如下
+    // followee:userId:entityType -> zset(entityId,now)
+    //userId是当前用户，entityType是要去关注的实体的类型（比如为帖子或人），entityId是被关注的实体的id，now是关注时间，作为分数排序
+    public static String getFolloweeKey(int userId,int entityType){
+        return PREFIX_FOLLOWEE+SPLIT+userId+SPLIT+entityType;
+    }
+
+    //某个实体类型的被关注列表(被人关注，所以是userId)，格式如下
+    // follower:entityType:entityId -> zset(userId,now)
+    public static String getFollowerKey(int entityType,int entityId){
+        return PREFIX_FOLLOWEE+SPLIT+entityType+SPLIT+entityId;
     }
 }
