@@ -31,6 +31,9 @@ public class ServiceLogAspect {
         //joinPoint是方便提取出原来方法
         //需要记录日志的格式为：用户[ip],在[Date],访问了[com.nowcoder.community.service.xxx()]
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if(attributes == null){
+            return;
+        }
         HttpServletRequest request = attributes.getRequest();
         String ip = request.getRemoteHost();
         String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
